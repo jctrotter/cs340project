@@ -253,12 +253,18 @@ CREATE TABLE `User` (
     `id`        INT             NOT NULL,
     `username`  VARCHAR(30)     NOT NULL,
     `password`  VARCHAR(30)     NOT NULL,
+    `logged_in` CHAR(1)         NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Populate `User` table with initial values
+--
 INSERT INTO `User` VALUES
-    (1, 'MuffinMan', 'muffinsrcool98'),
-    (2, 'idkwhatimdoing', 'sendhalp');
+    (1, 'MuffinMan', 'muffinsrcool98', 'N'),
+    (2, 'idkwhatimdoing', 'sendhalp', 'N'),
+    (3, 'BakingFor83', 'whydoihavesomanykids', 'N'),
+    (4, 'CookingScrub97', 'ionlyeatramen', 'N');
 
 --------------------------------------------------------------------
 
