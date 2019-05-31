@@ -264,7 +264,13 @@ INSERT INTO `User` VALUES
     (1, 'MuffinMan', 'muffinsrcool98', 'N'),
     (2, 'idkwhatimdoing', 'sendhalp', 'N'),
     (3, 'BakingFor83', 'whydoihavesomanykids', 'N'),
-    (4, 'CookingScrub97', 'ionlyeatramen', 'N');
+    (4, 'CookingScrub97', 'ionlyeatramen', 'N'),
+    (5, 'CatsRCool', 'woof', 'N'),
+    (6, 'DogsRRad', 'meow', 'N'),
+    (7, 'healthyboi', 'ionlyeatkale', 'N'),
+    (8, 'wowza', 'whoa', 'N'),
+    (9, 'WhatIsAKitchen', 'ihavenevercookedinmylife', 'N'),
+    (10, 'Cooking4LYF', 'ihaveliterallyneverseentheoutsideofmykitchen', 'N');
 
 --------------------------------------------------------------------
 
@@ -280,6 +286,20 @@ CREATE TABLE `UserRecipe` (
     FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Populate `UserRecipe` table with initial values
+--
+INSERT INTO `UserRecipe` VALUES
+    (1, 1, 1),
+    (2, 2, 2),
+    (3, 3, 3),
+    (4, 4, 4),
+    (5, 5, 5),
+    (6, 5, 6),
+    (7, 5, 7),
+    (8, 8, 8),
+    (9, 9, 9),
+    (10, 10, 10);
 --------------------------------------------------------------------
 
 --
@@ -293,3 +313,18 @@ CREATE TABLE `UserFavorite` (
     FOREIGN KEY (`user_id`) REFERENCES `User` (`id`),
     FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Populate `UserFavorite` table with initial values
+--
+INSERT INTO `UserFavorite` VALUES
+    (1, 1, 10),
+    (2, 2, 9),
+    (3, 3, 8),
+    (4, 4, 7),
+    (5, 5, 6),
+    (6, 6, 5),
+    (7, 7, 4),
+    (8, 7, 3),
+    (9, 7, 2),
+    (10, 9, 1);
