@@ -11,7 +11,7 @@ CREATE TABLE `Recipe` (
     `title`     VARCHAR(100)     NOT NULL,
     `photo`     VARCHAR(256),
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 --
 -- Populate `Recipe` table with initial values
@@ -28,7 +28,7 @@ INSERT INTO `Recipe` (`id`, `title`) VALUES
     (9, 'Onion Rings'),
     (10, 'Chocolate Chip Cookies');
 
---------------------------------------------------------------------
+-- ------------------------------------------------------------------
 
 --
 -- Table structure for table `Ingredient`
@@ -38,7 +38,7 @@ CREATE TABLE `Ingredient` (
     `name`  VARCHAR(30),
     `type`  VARCHAR(30),
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 --
 -- Populate `Ingredient` table with initial values
@@ -49,7 +49,7 @@ INSERT INTO `Ingredient` (`id`, `name`) VALUES
     (3, 'Lettuce'),
     (4, 'Carrots'),
     (5, 'Red Onion'),
-    (6, 'Ranch Dressing')
+    (6, 'Ranch Dressing'),
     (7, 'Croutons'),
     (8, 'Pretzel Dough'),
     (9, 'Cheese'),
@@ -77,7 +77,7 @@ INSERT INTO `Ingredient` (`id`, `name`) VALUES
     (31, 'Chocolate Chip Cookie Dough Mix'),
     (32, 'Butter');
 
---------------------------------------------------------------------
+-- ------------------------------------------------------------------
 
 --
 -- Table structure for table `RecipeIngredient`
@@ -90,7 +90,7 @@ CREATE TABLE `RecipeIngredient` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`),
     FOREIGN KEY (`ingredient_id`) REFERENCES `Ingredient` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 --
 -- Populate `RecipeIngredient` table with initial values
@@ -132,7 +132,7 @@ INSERT INTO `RecipeIngredient` VALUES
     (34, 10, 29, '1 large'),
     (35, 10, 32, '1 stick');
 
---------------------------------------------------------------------
+-- ------------------------------------------------------------------
 
 --
 -- Table structure for table `Step`
@@ -142,7 +142,7 @@ CREATE TABLE `Step` (
     `num`   INT             NOT NULL,
     `text`  VARCHAR(255)    NOT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 --
 -- Populate `Step` table with initial values
@@ -187,7 +187,7 @@ INSERT INTO `Step` VALUES
     (37, 4, 'Put the cookie dough in the oven and let bake for 10 minutes.'),
     (38, 5, 'Take the cookies out of the oven, let cool, then serve and enjoy.');
 
---------------------------------------------------------------------
+-- ------------------------------------------------------------------
 
 --
 -- Table structure for table `RecipeStep`
@@ -199,7 +199,7 @@ CREATE TABLE `RecipeStep` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`),
     FOREIGN KEY (`step_id`) REFERENCES `Step` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 --
 -- Populate `RecipeStep` table with initial values
@@ -244,7 +244,7 @@ INSERT INTO `RecipeStep` VALUES
     (37, 10, 37),
     (38, 10, 38);
 
---------------------------------------------------------------------
+-- ------------------------------------------------------------------
 
 --
 -- Table structure for table `User`
@@ -255,7 +255,7 @@ CREATE TABLE `User` (
     `password`  VARCHAR(30)     NOT NULL,
     `logged_in` CHAR(1)         NOT NULL,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 --
 -- Populate `User` table with initial values
@@ -272,7 +272,7 @@ INSERT INTO `User` VALUES
     (9, 'WhatIsAKitchen', 'ihavenevercookedinmylife', 'N'),
     (10, 'Cooking4LYF', 'ihaveliterallyneverseentheoutsideofmykitchen', 'N');
 
---------------------------------------------------------------------
+-- ------------------------------------------------------------------
 
 --
 -- Table structure for table `UserRecipe`
@@ -284,7 +284,7 @@ CREATE TABLE `UserRecipe` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `User` (`id`),
     FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 --
 -- Populate `UserRecipe` table with initial values
@@ -300,7 +300,8 @@ INSERT INTO `UserRecipe` VALUES
     (8, 8, 8),
     (9, 9, 9),
     (10, 10, 10);
---------------------------------------------------------------------
+
+-- ------------------------------------------------------------------
 
 --
 -- Table structure for table `UserFavorite`
@@ -312,7 +313,7 @@ CREATE TABLE `UserFavorite` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `User` (`id`),
     FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+);
 
 --
 -- Populate `UserFavorite` table with initial values
