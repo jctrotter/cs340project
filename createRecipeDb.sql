@@ -11,7 +11,7 @@ CREATE TABLE `Recipe` (
     `title`     VARCHAR(100)     NOT NULL,
     `photo`     VARCHAR(256),
     PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `Recipe` table with initial values
@@ -35,10 +35,10 @@ INSERT INTO `Recipe` (`id`, `title`) VALUES
 --
 CREATE TABLE `Ingredient` (
     `id`    INT             NOT NULL,
-    `name`  VARCHAR(30),
+    `name`  VARCHAR(60),
     `type`  VARCHAR(30),
     PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `Ingredient` table with initial values
@@ -88,9 +88,11 @@ CREATE TABLE `RecipeIngredient` (
     `ingredient_id`     INT             NOT NULL,
     `amount`            VARCHAR(30),
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`),
+    FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
+        ON DELETE CASCADE,
     FOREIGN KEY (`ingredient_id`) REFERENCES `Ingredient` (`id`)
-);
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `RecipeIngredient` table with initial values
@@ -142,7 +144,7 @@ CREATE TABLE `Step` (
     `num`   INT             NOT NULL,
     `text`  VARCHAR(255)    NOT NULL,
     PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `Step` table with initial values
@@ -197,9 +199,11 @@ CREATE TABLE `RecipeStep` (
     `recipe_id`     INT     NOT NULL,
     `step_id`       INT     NOT NULL,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`),
+    FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
+        ON DELETE CASCADE,
     FOREIGN KEY (`step_id`) REFERENCES `Step` (`id`)
-);
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `RecipeStep` table with initial values
@@ -252,10 +256,10 @@ INSERT INTO `RecipeStep` VALUES
 CREATE TABLE `User` (
     `id`        INT             NOT NULL,
     `username`  VARCHAR(30)     NOT NULL,
-    `password`  VARCHAR(30)     NOT NULL,
+    `password`  VARCHAR(60)     NOT NULL,
     `logged_in` CHAR(1)         NOT NULL,
     PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `User` table with initial values
@@ -282,9 +286,11 @@ CREATE TABLE `UserRecipe` (
     `user_id`       INT     NOT NULL,
     `recipe_id`     INT     NOT NULL,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`user_id`) REFERENCES `User` (`id`),
+    FOREIGN KEY (`user_id`) REFERENCES `User` (`id`)
+        ON DELETE CASCADE,
     FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
-);
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `UserRecipe` table with initial values
@@ -311,9 +317,11 @@ CREATE TABLE `UserFavorite` (
     `user_id`       INT     NOT NULL,
     `recipe_id`     INT     NOT NULL,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`user_id`) REFERENCES `User` (`id`),
+    FOREIGN KEY (`user_id`) REFERENCES `User` (`id`)
+        ON DELETE CASCADE,
     FOREIGN KEY (`recipe_id`) REFERENCES `Recipe` (`id`)
-);
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `UserFavorite` table with initial values
@@ -329,3 +337,5 @@ INSERT INTO `UserFavorite` VALUES
     (8, 7, 3),
     (9, 7, 2),
     (10, 9, 1);
+
+COMMIT;
