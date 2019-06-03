@@ -36,14 +36,13 @@ INSERT INTO `Recipe` (`id`, `title`) VALUES
 CREATE TABLE `Ingredient` (
     `id`    INT             NOT NULL,
     `name`  VARCHAR(60),
-    `type`  VARCHAR(30),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Populate `Ingredient` table with initial values
 --
-INSERT INTO `Ingredient` (`id`, `name`) VALUES
+INSERT INTO `Ingredient` VALUES
     (1, 'Elbow noodles'),
     (2, 'Cheese'),
     (3, 'Lettuce'),
@@ -257,7 +256,6 @@ CREATE TABLE `User` (
     `id`        INT             NOT NULL,
     `username`  VARCHAR(30)     NOT NULL,
     `password`  VARCHAR(60)     NOT NULL,
-    `logged_in` CHAR(1)         NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -265,16 +263,16 @@ CREATE TABLE `User` (
 -- Populate `User` table with initial values
 --
 INSERT INTO `User` VALUES
-    (1, 'MuffinMan', 'muffinsrcool98', 'N'),
-    (2, 'idkwhatimdoing', 'sendhalp', 'N'),
-    (3, 'BakingFor83', 'whydoihavesomanykids', 'N'),
-    (4, 'CookingScrub97', 'ionlyeatramen', 'N'),
-    (5, 'CatsRCool', 'woof', 'N'),
-    (6, 'DogsRRad', 'meow', 'N'),
-    (7, 'healthyboi', 'ionlyeatkale', 'N'),
-    (8, 'wowza', 'whoa', 'N'),
-    (9, 'WhatIsAKitchen', 'ihavenevercookedinmylife', 'N'),
-    (10, 'Cooking4LYF', 'ihaveliterallyneverseentheoutsideofmykitchen', 'N');
+    (1, 'MuffinMan', 'muffinsrcool98'),
+    (2, 'idkwhatimdoing', 'sendhalp'),
+    (3, 'BakingFor83', 'whydoihavesomanykids'),
+    (4, 'CookingScrub97', 'ionlyeatramen'),
+    (5, 'CatsRCool', 'woof'),
+    (6, 'DogsRRad', 'meow'),
+    (7, 'healthyboi', 'ionlyeatkale'),
+    (8, 'wowza', 'whoa'),
+    (9, 'WhatIsAKitchen', 'ihavenevercookedinmylife'),
+    (10, 'Cooking4LYF', 'ihaveliterallyneverseentheoutsideofmykitchen');
 
 -- ------------------------------------------------------------------
 
