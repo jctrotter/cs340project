@@ -27,6 +27,10 @@ app.get('/', function (req, res) {
     res.status(200).render('index');
 });
 
+app.get('/register', function (req, res) {
+    res.status(200).render('register');
+});
+
 app.get('*', function (req, res) {
     // res.status(404).sendFile(path.join(__dirname,'public', '404.html'))
     res.status(404).render('404');
