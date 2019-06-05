@@ -1,21 +1,15 @@
 var path = require('path');
 var express = require('express');
 var exphbs = require('express-handlebars');
-var mysql = require('mysql');
+var con = require('./public/js/sql_db_config');
 var app = express();
 var port = process.env.PORT || 3000;
 
-var con = mysql.createConnection({
-    host: "classmysql.engr.oregonstate.edu",
-    user: "cs340_vaughanh",
-    password: "2189"
-});
-
-con.connect(function (err) {
+con.getConnection(function (err, connection) {
     if (err) {
         throw err;
     }
-    console.log("Connected to database.");
+    console.log(" Connected to database.");
 });
 
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
