@@ -256,7 +256,8 @@ CREATE TABLE `User` (
     `id`        INT             NOT NULL,
     `username`  VARCHAR(30)     NOT NULL,
     `password`  VARCHAR(60)     NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
