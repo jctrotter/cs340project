@@ -36,7 +36,8 @@ INSERT INTO `Recipe` (`id`, `title`) VALUES
 CREATE TABLE `Ingredient` (
     `id`    INT             NOT NULL,
     `name`  VARCHAR(60),
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
