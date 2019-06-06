@@ -1,0 +1,34 @@
+<main role="main" class="container">
+
+  <h1 class="recipe-text">Oregon State Community Recipes</h1>
+
+  <div class="row">
+    <div class="col-md-3 pt-3">
+      <div class="border rounded p-2" id="search-form">
+        <h4 class="text-center">Search</h4>
+        <div class="form-group">
+          <label for="search-type-select">Search Type</label>
+          <select class="form-control" id="search-type-select">
+            <option>Recipe</option>
+            <option>Ingredient</option>
+            <option>Author</option>
+            <option>Favorites</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="search-bar">Search Text</label>
+          <input class="form-control mr-sm-2" id="search-bar" type="text" placeholder="Search" aria-label="Search">
+        </div>
+        <div class="form-group">
+          <button class="btn btn-secondary mx-auto" id="search-submit">Search</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9 pt-3 card-columns">
+      {{#each recipes}}
+        {{> recipeCard}}
+      {{/each}}
+    </div>
+  </div>
+
+</main>
