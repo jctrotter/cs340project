@@ -158,7 +158,9 @@ app.listen(port, () => {
 
 app.post('/addrecipe', (req, res) => {
 //TODO
-//userrecipe when sessions implemented
+//-userrecipe when sessions implemented
+//-double check logic works
+//-handle no entries
 // get our values
     console.log("hello this is body!!!!");
     console.log(req.body.recipe_name);
