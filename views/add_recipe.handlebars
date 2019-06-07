@@ -1,7 +1,8 @@
 <main role="main" class="container">
+    <form action="/addrecipe" method="POST">
     <div class="starter-template">
         <label class="float-left" for="recipe-name">Recipe Name</label>
-        <input class="form-control mr-sm-0" type="text" placeholder="Recipe Name" aria-label="Recipe Name">
+        <input class="form-control mr-sm-0" type="text" placeholder="Recipe Name" aria-label="Recipe Name" name="recipe_name" id="recipe-name">
         <label class="float-left pt-3" for="photo-url">Photo URL</label>
         <input class="form-control mr-sm-0" type="text" placeholder="Photo URL" aria-label="Photo URL">
         <div class="container pb-3">
@@ -19,14 +20,14 @@
         <button class="btn btn-secondary my-2 my-sm-0 float-right" type="submit">Add</button>
         <div class="container pb-3">
             <div class="new-steps" id="new-steps">
-                <div class="steps-input-container">
+                <div class="steps-input-container" id="step-container">
                     <label class="float-left pt-3" for="steps">Steps</label>
                     <input class="form-control mr-sm-0" type="text" placeholder="Step" id="step" aria-label="Step">
                 </div>
             </div>
         </div>
-        <button class="btn btn-secondary my-2 my-sm-0 float-right" type="submit">Add</button>
+        <button class="btn btn-secondary my-2 my-sm-0 float-right" type="submit" #id="step-submit">Add</button>
     </div>
-    <button type="button" class="btn btn-primary" id="recipe-submit">Submit</button>
-    
+    <button type="submit" class="btn btn-primary" id="recipe-submit">Submit</button>
+    </form>
 </main>
