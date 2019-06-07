@@ -1,4 +1,3 @@
-var path = require('path');
 var express = require('express');
 var exphbs = require('express-handlebars');
 var mysql = require('mysql');
@@ -39,26 +38,21 @@ connection.getConnection(err => {
 });
 
 // Reconnect to Database When Disconnected //
-// function reconnect() {
-    connection.on('error', err => {
-        if (err) {
-            console.log(` The following error has occured: ${err.code}`);
-            if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-                console.log(" Lost connection to database. Attempting to reconnect...");
-                connection.getConnection(err => {
-                    if (err) {
-                        console.log(` The following error has occured while attempting to reconnect to the database: ${err.code}`);
-                        return;
-                    }
-                    console.log(" Reconnected to database.");
-                    // reconnect();
-                });
-            }
+connection.on('error', err => {
+    if (err) {
+        console.log(` The following error has occured: ${err.code}`);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            console.log(" Lost connection to database. Attempting to reconnect...");
+            connection.getConnection(err => {
+                if (err) {
+                    console.log(` The following error has occured while attempting to reconnect to the database: ${err.code}`);
+                    return;
+                }
+                console.log(" Reconnected to database.");
+            });
         }
-    });
-// }
-
-// reconnect();
+    }
+});
 
 
 
@@ -115,6 +109,8 @@ app.get('/ingredientsearch', (req, res) => {
     });
 });
 
+// Search by Author Results //
+// GET /authorsearch?search=search+text
 app.get('/authorsearch', (req, res) => {
     var searchText = req.query.search.split('+').join(' ');
     var searchQuery = `SELECT * FROM recipeAuthorSearch WHERE author LIKE '%${searchText}%'`;
@@ -131,8 +127,9 @@ app.get('/authorsearch', (req, res) => {
     });
 });
 
-app.get('/add_recipe.html', (req, res) => {
-    res.status(200).render('add_recipe');
+// Login Page //
+app.get('/login', (req, res) => {
+    res.status(200).render('login');
 });
 
 // Register Page //
@@ -140,9 +137,8 @@ app.get('/register', (req, res) => {
     res.status(200).render('register');
 });
 
-// Login Page //
-app.get('/login', (req, res) => {
-    res.status(200).render('login');
+app.get('/add_recipe.html', (req, res) => {
+    res.status(200).render('add_recipe');
 });
 
 // Error Page //
