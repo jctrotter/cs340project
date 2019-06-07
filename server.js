@@ -2,12 +2,19 @@ var path = require('path');
 var express = require('express');
 var exphbs = require('express-handlebars');
 var mysql = require('mysql');
+var bodyParser = require('body-parser')
 var app = express();
 var port = process.env.PORT || 3000;
 
 // Handlebars Setup //
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
 
 // Complete Express Setup //
 app.use(express.static('public'));
@@ -17,9 +24,9 @@ app.use(express.static('public'));
 // Database Connection: Change credentials to connect to your server. //
 var connection = mysql.createPool({
     host: "classmysql.engr.oregonstate.edu",
-    user: "cs340_vaughanh",
-    password: "2189",
-    database: "cs340_vaughanh"
+    user: "cs340_trotterj",
+    password: "9288",
+    database: "cs340_trotterj"
 });
 
 // Connect to Database
@@ -150,104 +157,95 @@ app.listen(port, () => {
 });
 
 app.post('/addrecipe', (req, res) => {
+//TODO
+//userrecipe when sessions implemented
 // get our values
     console.log("hello this is body!!!!");
-    console.log(req.body);
     console.log(req.body.recipe_name);
-   // var recipe_name = $('#recipe-name').val();
-   // var recipe_URL = $('#photo-url').val();
-
-    // increase ingredients and steps when respective adds clicked
-
-    var amts = [];
-    var ingredients = [];
-    var steps = [];
-
-    // $('#new-ingredients').children('#amt').each(function () {
-    //     amts.append(this.val())
-    // });
-
-    // $('#new-ingredients').children('#ingredient').each(function () {
-    //     ingredients.append(this.val())
-    // });
-
-    // $('#new-steps').children('#step').each(function () {
-    //     steps.append(this.val())
-    // });
+    console.log(req.body.photo_url);
+    console.log(req.body.amt[0]);
+    console.log(req.body.ingredient[0]);
+    console.log(req.body.step[0]);
 
     //add the recipe
-    // var insert_recipe_query = `SET @new_recipe_id = (SELECT MAX(id)+1 FROM Recipe); INSERT INTO Recipe(id, title,photo) SELECT @new_recipe_id, ${recipe_name}, ${photo-url}`;
-    
-    // var insert_ingredient_queries = [];
-    // let i;
-    // for(i = 0; i < ingredients.length; i++){
-    //     insert_ingredient_queries.append(`INSERT INTO Ingredient(id, name) SELECT MAX(id)+1, ${ingredients[i]} FROM Ingredient`);
-    // };
+    var insert_recipe_query = `INSERT INTO Recipe(id, title,photo) SELECT (SELECT MAX(id)+1 FROM Recipe), "${req.body.recipe_name}", '${req.body.photo_url}'`;
 
-    // var insert_recipeingredient_queries = []
-    // var working_query;
-    // for(i = 0; i < ingredients.length; i++){
-    //     working_query = `SET @ingredient_id = (SELECT id FROM Ingredient WHERE name = ${ingredients[i]}); SET @new_recipe_id = (SELECT MAX(id) FROM Recipe);`;
-    //     working_query = working_query + `INSERT INTO RecipeIngredient (id, recipe_id, ingredient_id, amount) SELECT MAX(id)+1, @new_recipe_id, @ingredient_id, ${amts[i]}`
-    //     insert_recipeingredient_queries.append(working_query);
-    // }
-    // var insert_step_queries = [];
-    // for(i = 0; i < steps.length; i++){
-    //     insert_step_queries.append(`INSERT INTO Step (id, num, text) SELECT MAX(id)+1, ${i+1}, ${steps[i]} FROM Step`)
-    // }
+    var insert_ingredient_queries = [];
+    let i;
+    for(i = 0; i < req.body.ingredient.length; i++){
+        insert_ingredient_queries.push(`INSERT INTO Ingredient(id, name) SELECT MAX(id)+1, '${req.body.ingredient[i]}' FROM Ingredient`);
+    };
 
-    // var insert_recipestep_queries = [];
-    // for(i = 0; i < steps.length; i++){
-    //     insert_recipestep_queries.append(`SET @new_recipe_id = (SELECT MAX(id) FROM Recipe); SET @new_step_id = (SELECT MAX(id) FROM Step); INSERT INTO RecipeStep (id, recipe_id, step_id) SELECT MAX(id)+1, @new_recipe_id, @new_step_id FROM RecipeStep`);
-    // }
+    var insert_recipeingredient_queries = []
+    var working_query;
+    for(i = 0; i < req.body.ingredient.length; i++){
+        insert_recipeingredient_queries.push(`INSERT INTO RecipeIngredient (id, recipe_id, ingredient_id, amount) SELECT (SELECT MAX(id)+1 FROM RecipeIngredient), (SELECT MAX(id) FROM Recipe), (SELECT id FROM Ingredient WHERE name = '${req.body.ingredient[i]}'), '${req.body.amt[i]}'`);
+    }
+
+    var insert_step_queries = [];
+    for(i = 0; i < req.body.step.length; i++){
+        insert_step_queries.push(`INSERT INTO Step (id, num, text) SELECT MAX(id)+1, ${i+1}, '${req.body.step[i]}' FROM Step`)
+    }
+
+    var insert_recipestep_queries = [];
+    for(i = 0; i < req.body.step.length; i++){
+        insert_recipestep_queries.push(`INSERT INTO RecipeStep (id, recipe_id, step_id) SELECT (SELECT MAX(id)+1 FROM RecipeStep), (SELECT MAX(id) FROM Recipe), (SELECT MAX(id) FROM Step)`);
+    }
 
     // var insert_userrecipe_query = `SET @new_recipe_id = (SELECT MAX(id) FROM Recipe); INSERT INTO UserRecipe (id, user_id, recipe_id) SELECT MAX(id)+1, 1, @new_recipe_id FROM UserRecipe`;
 
 
     // ///--------DOING THE QUERIES--------//
-    // connection.query(insert_recipe_query, (err, result, fields) => {
-    //     if (err) {
-    //         console.log(` The following error occurred while attempting to query the database: ${err.code}`);
-    //         return;
-    //     }
-    // });
+    connection.query(insert_recipe_query, (err, result, fields) => {
+          if (err) {
+              console.log(` The following error occurred while attempting to recipe query the database: ${err.code}`);
+              return;
+          }
+      });
 
-    // for(i = 0; i < insert_ingredient_queries.length; i++){
-    //     connection.query(insert_ingredient_queries[i], (err, result, fields) => {
-    //         if (err) {
-    //             console.log(` The following error occurred while attempting to query the database: ${err.code}`);
-    //             return;
-    //         }
-    //     });
-    // };
+    for(i = 0; i < insert_ingredient_queries.length; i++){
+        connection.query(insert_ingredient_queries[i], (err, result, fields) => {
+            if (err) {
+                console.log(` The following error occurred while attempting to ingredient query the database: ${err.code}`);
+                return;
+            }
+        });
+    };
 
-    // for(i = 0; i < insert_recipeingredient_queries.length; i++){
-    //     connection.query(insert_recipeingredient_queries[i], (err, result, fields) => {
-    //         if (err) {
-    //             console.log(` The following error occurred while attempting to query the database: ${err.code}`);
-    //             return;
-    //         }
-    //     });
-    // };
+    for(i = 0; i < insert_recipeingredient_queries.length; i++){
+        connection.query(insert_recipeingredient_queries[i], (err, result, fields) => {
+            if (err) {
+                console.log(` The following error occurred while attempting to recipeingredient query the database: ${err.code}`);
+                return;
+            }
+        });
+    };
 
-    // for(i = 0; i < insert_step_queries.length; i++){
-    //     connection.query(insert_step_queries[i], (err, result, fields) => {
-    //         if (err) {
-    //             console.log(` The following error occurred while attempting to query the database: ${err.code}`);
-    //             return;
-    //         }
-    //     });
-    // };
+    for(i = 0; i < insert_step_queries.length; i++){
+        connection.query(insert_step_queries[i], (err, result, fields) => {
+            if (err) {
+                console.log(` The following error occurred while attempting to step query the database: ${err.code}`);
+                return;
+            }
+        });
+        connection.query(insert_recipestep_queries[i], (err, result, fields) => {
+            if (err) {
+                console.log(` The following error occurred while attempting to recipestep query the database: ${err.code}`);
+                return;
+            }
+        });
+    };
 
     // for(i = 0; i < insert_recipestep_queries.length; i++){
     //     connection.query(insert_recipestep_queries[i], (err, result, fields) => {
     //         if (err) {
-    //             console.log(` The following error occurred while attempting to query the database: ${err.code}`);
+    //             console.log(` The following error occurred while attempting to recipestep query the database: ${err.code}`);
     //             return;
     //         }
     //     });
     // };
 
-    res.status(200).send()
-    
+        res.status(200).render('search');
 });
+    
+
