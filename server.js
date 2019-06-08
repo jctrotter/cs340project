@@ -133,6 +133,7 @@ app.get('/authorsearch', (req, res) => {
 
 app.get('/add_recipe.html', (req, res) => {
     res.status(200).render('add_recipe');
+    console.log(res.getHeaders())
 });
 
 // Register Page //
@@ -154,6 +155,32 @@ app.get('*', (req, res) => {
 // Run Server //
 app.listen(port, () => {
     console.log(" Server is listening on port", port);
+});
+
+app.post('/login', (req, res) => {
+    console.log("IN THT EBODYDDY!!")
+    console.log(req.body.username);
+    let username = req.body.username;
+    console.log(req.body.password);
+    let password = req.body.password;
+    var myquery = `SELECT * FROM User WHERE username = '${req.body.username}' AND password = '${req.body.password}'`;
+    console.log(myquery)
+    connection.query(myquery, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err.code}`);
+            return;
+        }
+        else {
+            console.log(result);
+            res.setHeader('Set-Cookie', [`username=${username}`]);
+            //Set-Cookie creates a client cookie, what does Cookie do? Need to read more documentation
+            console.log(res.getHeaders());
+            res.status(200).render('search');
+
+            //console.log(res.cookies);
+
+        }
+    })
 });
 
 app.post('/addrecipe', (req, res) => {
