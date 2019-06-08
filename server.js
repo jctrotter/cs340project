@@ -131,7 +131,13 @@ app.get('/authorsearch', (req, res) => {
 
 
 app.get('/add_recipe', (req, res) => {
-    res.status(200).render('add_recipe');
+    if (req.cookies['username'] != ""){
+        console.log(req.cookies['username']);
+        res.status(200).render('add_recipe');
+    }
+    else{
+        res.status(200).render('login')
+    }
 });
 
 // Login Page //
@@ -198,35 +204,54 @@ app.post('/addrecipe', (req, res) => {
     console.log(req.body.amt[0]);
     console.log(req.body.ingredient[0]);
     console.log(req.body.step[0]);
-
-    //add the recipe
-    var insert_recipe_query = `INSERT INTO Recipe(id, title,photo) SELECT (SELECT MAX(id)+1 FROM Recipe), "${req.body.recipe_name}", '${req.body.photo_url}'`;
-
-    var insert_ingredient_queries = [];
+    let validate = 0;
     let i;
+    for(i = 0; i < req.body.amt.length; i++){
+        if (req.body.amt[i] == ""){
+            console.log("body invalid")
+            validate = 1;
+        }
+    }
+    for(i=0; i < req.body.ingredient.length; i++){
+        if (req.body.ingredient[i] == ""){
+            console.log("ingredient invalid")
+            validate = 1;
+        }
+    }
+    for(i = 0; i < req.body.step.length; i++){
+        if (req.body.step[i] == ""){
+            console.log("step invalid")
+            validate = 1;
+        }
+    }
+    if (req.body.recipe_name == "" || req.body.photo_url == ""){
+        console.log("name or photo invalid")
+        validate = 1;
+    }
+
+    console.log(validate)
+    if (validate == 0) {
+    //add the recipe
+    console.log("valid input, running queries.")
+    var insert_recipe_query = `INSERT INTO Recipe(id, title,photo) SELECT (SELECT MAX(id)+1 FROM Recipe), "${req.body.recipe_name}", '${req.body.photo_url}'`;
+    var insert_ingredient_queries = [];
     for(i = 0; i < req.body.ingredient.length; i++){
         insert_ingredient_queries.push(`INSERT INTO Ingredient(id, name) SELECT MAX(id)+1, '${req.body.ingredient[i]}' FROM Ingredient`);
     };
-
     var insert_recipeingredient_queries = []
     var working_query;
     for(i = 0; i < req.body.ingredient.length; i++){
         insert_recipeingredient_queries.push(`INSERT INTO RecipeIngredient (id, recipe_id, ingredient_id, amount) SELECT (SELECT MAX(id)+1 FROM RecipeIngredient), (SELECT MAX(id) FROM Recipe), (SELECT id FROM Ingredient WHERE name = '${req.body.ingredient[i]}'), '${req.body.amt[i]}'`);
     }
-
     var insert_step_queries = [];
     for(i = 0; i < req.body.step.length; i++){
         insert_step_queries.push(`INSERT INTO Step (id, num, text) SELECT MAX(id)+1, ${i+1}, '${req.body.step[i]}' FROM Step`)
     }
-
     var insert_recipestep_queries = [];
     for(i = 0; i < req.body.step.length; i++){
         insert_recipestep_queries.push(`INSERT INTO RecipeStep (id, recipe_id, step_id) SELECT (SELECT MAX(id)+1 FROM RecipeStep), (SELECT MAX(id) FROM Recipe), (SELECT MAX(id) FROM Step)`);
     }
-
-    // var insert_userrecipe_query = `SET @new_recipe_id = (SELECT MAX(id) FROM Recipe); INSERT INTO UserRecipe (id, user_id, recipe_id) SELECT MAX(id)+1, 1, @new_recipe_id FROM UserRecipe`;
-
-
+    var insert_userrecipe_query = `INSERT INTO UserRecipe (id, user_id, recipe_id) SELECT (SELECT MAX(id)+1 FROM UserRecipe), (SELECT id FROM User WHERE username = '${req.cookies['username']}'), (SELECT MAX(id) FROM Recipe)`;
     // ///--------DOING THE QUERIES--------//
     connection.query(insert_recipe_query, (err, result, fields) => {
           if (err) {
@@ -234,7 +259,6 @@ app.post('/addrecipe', (req, res) => {
               return;
           }
       });
-
     for(i = 0; i < insert_ingredient_queries.length; i++){
         connection.query(insert_ingredient_queries[i], (err, result, fields) => {
             if (err) {
@@ -243,7 +267,6 @@ app.post('/addrecipe', (req, res) => {
             }
         });
     };
-
     for(i = 0; i < insert_recipeingredient_queries.length; i++){
         connection.query(insert_recipeingredient_queries[i], (err, result, fields) => {
             if (err) {
@@ -252,7 +275,6 @@ app.post('/addrecipe', (req, res) => {
             }
         });
     };
-
     for(i = 0; i < insert_step_queries.length; i++){
         connection.query(insert_step_queries[i], (err, result, fields) => {
             if (err) {
@@ -267,17 +289,18 @@ app.post('/addrecipe', (req, res) => {
             }
         });
     };
-
-    // for(i = 0; i < insert_recipestep_queries.length; i++){
-    //     connection.query(insert_recipestep_queries[i], (err, result, fields) => {
-    //         if (err) {
-    //             console.log(` The following error occurred while attempting to recipestep query the database: ${err.code}`);
-    //             return;
-    //         }
-    //     });
-    // };
-
-        res.status(200).render('search');
+    connection.query(insert_userrecipe_query, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to userrecipe query the database: ${err.code}`);
+            return;
+        }
+    });
+    res.status(200).render('search');
+    }
+    else{
+        console.log("Invalid input - please fill in all forms.")
+        res.status(200).render('add_recipe')
+    }
 });
     
 
