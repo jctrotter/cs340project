@@ -3,6 +3,7 @@ var exphbs = require('express-handlebars');
 var mysql = require('mysql');
 var bodyParser = require('body-parser')
 var cookieParser = require('cookie-parser');
+var passwordHasher = require('password-hash');
 var app = express();
 var port = process.env.PORT || 3000;
 
@@ -33,7 +34,7 @@ var connection = mysql.createPool({
 // Connect to Database
 connection.getConnection(err => {
     if (err) {
-        console.log(` The following error has occured while attempting to connect to the database: ${err.code}`);
+        console.log(` The following error has occured while attempting to connect to the database: ${err}`);
         return;
     }
     console.log(" Connected to database.");
@@ -42,12 +43,12 @@ connection.getConnection(err => {
 // Reconnect to Database When Disconnected //
 connection.on('error', err => {
     if (err) {
-        console.log(` The following error has occured: ${err.code}`);
-        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        console.log(` The following error has occured: ${err}`);
+        if (err === 'PROTOCOL_CONNECTION_LOST') {
             console.log(" Lost connection to database. Attempting to reconnect...");
             connection.getConnection(err => {
                 if (err) {
-                    console.log(` The following error has occured while attempting to reconnect to the database: ${err.code}`);
+                    console.log(` The following error has occured while attempting to reconnect to the database: ${err}`);
                     return;
                 }
                 console.log(" Reconnected to database.");
@@ -65,7 +66,7 @@ app.get('/', (req, res) => {
     // Render all recipes in the Recipe table //
     connection.query("SELECT * FROM Recipe", (err, result, fields) => {
         if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err.code}`);
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
             return;
         }
 
@@ -83,7 +84,7 @@ app.get('/recipesearch', (req, res) => {
 
     connection.query(searchQuery, (err, result, fields) => {
         if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err.code}`);
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
             return;
         }
 
@@ -101,7 +102,7 @@ app.get('/ingredientsearch', (req, res) => {
 
     connection.query(searchQuery, (err, result, fields) => {
         if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err.code}`);
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
             return;
         }
 
@@ -119,7 +120,7 @@ app.get('/authorsearch', (req, res) => {
 
     connection.query(searchQuery, (err, result, fields) => {
         if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err.code}`);
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
             return;
         }
 
@@ -142,6 +143,22 @@ app.get('/login', (req, res) => {
 // Register Page //
 app.get('/register', (req, res) => {
     res.status(200).render('register');
+});
+
+// Register Page //
+// POST /register?username=username&password=password
+app.post('/register', (req, res) => {
+    console.log(req.body);
+    var username = req.body.usernameInput;
+    var password = req.body.passwordInput;
+    var query = `INSERT INTO User SELECT (SELECT MAX(id) + 1 FROM User), '${username}', '${password}'`;
+    connection.query(query, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
+            return;
+        }
+        res.redirect('/');
+    });
 });
 
 // Logout //
@@ -171,7 +188,7 @@ app.post('/login', (req, res) => {
     console.log(myquery)
     connection.query(myquery, (err, result, fields) => {
         if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err.code}`);
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
             return;
         } else if (result[0]){
             console.log(result);
@@ -230,7 +247,7 @@ app.post('/addrecipe', (req, res) => {
     // ///--------DOING THE QUERIES--------//
     connection.query(insert_recipe_query, (err, result, fields) => {
           if (err) {
-              console.log(` The following error occurred while attempting to recipe query the database: ${err.code}`);
+              console.log(` The following error occurred while attempting to recipe query the database: ${err}`);
               return;
           }
       });
@@ -238,7 +255,7 @@ app.post('/addrecipe', (req, res) => {
     for(i = 0; i < insert_ingredient_queries.length; i++){
         connection.query(insert_ingredient_queries[i], (err, result, fields) => {
             if (err) {
-                console.log(` The following error occurred while attempting to ingredient query the database: ${err.code}`);
+                console.log(` The following error occurred while attempting to ingredient query the database: ${err}`);
                 return;
             }
         });
@@ -247,7 +264,7 @@ app.post('/addrecipe', (req, res) => {
     for(i = 0; i < insert_recipeingredient_queries.length; i++){
         connection.query(insert_recipeingredient_queries[i], (err, result, fields) => {
             if (err) {
-                console.log(` The following error occurred while attempting to recipeingredient query the database: ${err.code}`);
+                console.log(` The following error occurred while attempting to recipeingredient query the database: ${err}`);
                 return;
             }
         });
@@ -256,13 +273,13 @@ app.post('/addrecipe', (req, res) => {
     for(i = 0; i < insert_step_queries.length; i++){
         connection.query(insert_step_queries[i], (err, result, fields) => {
             if (err) {
-                console.log(` The following error occurred while attempting to step query the database: ${err.code}`);
+                console.log(` The following error occurred while attempting to step query the database: ${err}`);
                 return;
             }
         });
         connection.query(insert_recipestep_queries[i], (err, result, fields) => {
             if (err) {
-                console.log(` The following error occurred while attempting to recipestep query the database: ${err.code}`);
+                console.log(` The following error occurred while attempting to recipestep query the database: ${err}`);
                 return;
             }
         });
@@ -271,7 +288,7 @@ app.post('/addrecipe', (req, res) => {
     // for(i = 0; i < insert_recipestep_queries.length; i++){
     //     connection.query(insert_recipestep_queries[i], (err, result, fields) => {
     //         if (err) {
-    //             console.log(` The following error occurred while attempting to recipestep query the database: ${err.code}`);
+    //             console.log(` The following error occurred while attempting to recipestep query the database: ${err}`);
     //             return;
     //         }
     //     });
