@@ -25,7 +25,7 @@ var session_user;
 // Database Connection: Change credentials to connect to your server. //
 var connection = mysql.createPool({
     host: "classmysql.engr.oregonstate.edu",
-    user: "cs340_trotterj",
+    user: "cs340_trotterj", //make sure to line up with the user in db.sql
     password: "9288",
     database: "cs340_trotterj"
 });
@@ -132,7 +132,8 @@ app.get('/authorsearch', (req, res) => {
 
 app.get('/add_recipe', (req, res) => {
     res.status(200).render('add_recipe');
-    
+});
+
 // Login Page //
 app.get('/login', (req, res) => {
     res.status(200).render('login');
@@ -141,10 +142,6 @@ app.get('/login', (req, res) => {
 // Register Page //
 app.get('/register', (req, res) => {
     res.status(200).render('register');
-});
-
-app.get('/add_recipe.html', (req, res) => {
-    res.status(200).render('add_recipe');
 });
 
 // Logout //
