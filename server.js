@@ -131,13 +131,19 @@ app.get('/authorsearch', (req, res) => {
 });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 75f1a46afdeadddadccfc18377ba49775945dd9e
 app.get('/recipe/:recipeId', (req, res) => {
     var recipeId = req.params.recipeId;
     res.status(200).render('recipe');
 });
 
+<<<<<<< HEAD
 >>>>>>> Not workingggg
+=======
+>>>>>>> 75f1a46afdeadddadccfc18377ba49775945dd9e
 // Add Recipe Page //
 // GET /add_recipe
 app.get('/add_recipe', (req, res) => {
