@@ -3,6 +3,7 @@ var express = require('express');
 var exphbs = require('express-handlebars');
 var mysql = require('mysql');
 var bodyParser = require('body-parser')
+var cookieParser = require('cookie-parser');
 var app = express();
 var port = process.env.PORT || 3000;
 
@@ -16,10 +17,11 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+app.use(cookieParser())
 // Complete Express Setup //
 app.use(express.static('public'));
 
-
+var session_user;
 
 // Database Connection: Change credentials to connect to your server. //
 var connection = mysql.createPool({
@@ -133,7 +135,6 @@ app.get('/authorsearch', (req, res) => {
 
 app.get('/add_recipe.html', (req, res) => {
     res.status(200).render('add_recipe');
-    console.log(res.getHeaders())
 });
 
 // Register Page //
@@ -169,16 +170,15 @@ app.post('/login', (req, res) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err.code}`);
             return;
+        } else if (result[0]){
+            console.log(result);
+            res.setHeader('Set-Cookie', `username=${username}`);
+            res.status(200).render('search');
+            //ACCESS USERNAME COOKIE WITH req.cookies['username']
         }
         else {
-            console.log(result);
-            res.setHeader('Set-Cookie', [`username=${username}`]);
-            //Set-Cookie creates a client cookie, what does Cookie do? Need to read more documentation
-            console.log(res.getHeaders());
-            res.status(200).render('search');
-
-            //console.log(res.cookies);
-
+            console.log(result)
+            console.log("invalid username or password")
         }
     })
 });
