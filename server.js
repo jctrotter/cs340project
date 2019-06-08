@@ -35,7 +35,7 @@ var connection = mysql.createPool({
 connection.getConnection(err => {
     if (err) {
         console.log(` The following error has occured while attempting to connect to the database: ${err}`);
-        return;
+        res.status(500).send(err);
     }
     console.log(" Connected to database.");
 });
@@ -49,7 +49,7 @@ connection.on('error', err => {
             connection.getConnection(err => {
                 if (err) {
                     console.log(` The following error has occured while attempting to reconnect to the database: ${err}`);
-                    return;
+                    res.status(500).send(err);
                 }
                 console.log(" Reconnected to database.");
             });
@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
     connection.query("SELECT * FROM Recipe", (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
-            return;
+            res.status(500).send(err);
         }
 
         res.status(200).render('search', {
@@ -85,11 +85,11 @@ app.get('/recipesearch', (req, res) => {
     connection.query(searchQuery, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
-            return;
+            res.status(500).send(err);
         }
 
         res.status(200).render('search', {
-            recipes: result
+            title: result.title
         });
     });
 });
@@ -103,7 +103,7 @@ app.get('/ingredientsearch', (req, res) => {
     connection.query(searchQuery, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
-            return;
+            res.status(500).send(err);
         }
 
         res.status(200).render('search', {
@@ -121,29 +121,28 @@ app.get('/authorsearch', (req, res) => {
     connection.query(searchQuery, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
-            return;
+            res.status(500).send(err);
         }
-
         res.status(200).render('search', {
            recipes: result 
         });
     });
 });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 75f1a46afdeadddadccfc18377ba49775945dd9e
-app.get('/recipe/:recipeId', (req, res) => {
-    var recipeId = req.params.recipeId;
-    res.status(200).render('recipe');
+app.get('/recipe', (req, res) => {
+    var recipeId = req.query.id;
+    var query = `SELECT DISTINCT * FROM Recipe WHERE id = ${recipeId}`;
+    connection.query(query, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
+            res.status(500).send(err);
+        }
+        res.status(200).render('recipe', {
+            title: result[0].title
+        });
+    });
 });
 
-<<<<<<< HEAD
->>>>>>> Not workingggg
-=======
->>>>>>> 75f1a46afdeadddadccfc18377ba49775945dd9e
 // Add Recipe Page //
 // GET /add_recipe
 app.get('/add_recipe', (req, res) => {
@@ -220,14 +219,14 @@ app.post('/addrecipe', (req, res) => {
         connection.query(insert_recipe_query, (err, result, fields) => {
               if (err) {
                   console.log(` The following error occurred while attempting to recipe query the database: ${err}`);
-                  return;
+                  res.status(500).send(err);
               }
           });
         for(i = 0; i < insert_ingredient_queries.length; i++){
             connection.query(insert_ingredient_queries[i], (err, result, fields) => {
                 if (err) {
                     console.log(` The following error occurred while attempting to ingredient query the database: ${err}`);
-                    return;
+                    res.status(500).send(err);
                 }
             });
         };
@@ -235,7 +234,7 @@ app.post('/addrecipe', (req, res) => {
             connection.query(insert_recipeingredient_queries[i], (err, result, fields) => {
                 if (err) {
                     console.log(` The following error occurred while attempting to recipeingredient query the database: ${err}`);
-                    return;
+                    res.status(500).send(err);
                 }
             });
         };
@@ -243,20 +242,20 @@ app.post('/addrecipe', (req, res) => {
             connection.query(insert_step_queries[i], (err, result, fields) => {
                 if (err) {
                     console.log(` The following error occurred while attempting to step query the database: ${err}`);
-                    return;
+                    res.status(500).send(err);
                 }
             });
             connection.query(insert_recipestep_queries[i], (err, result, fields) => {
                 if (err) {
                     console.log(` The following error occurred while attempting to recipestep query the database: ${err}`);
-                    return;
+                    res.status(500).send(err);
                 }
             });
         };
         connection.query(insert_userrecipe_query, (err, result, fields) => {
             if (err) {
                 console.log(` The following error occurred while attempting to userrecipe query the database: ${err.code}`);
-                return;
+                res.status(500).send(err);
             }
         });
         res.redirect('/');
@@ -281,7 +280,7 @@ app.post('/login', (req, res) => {
     connection.query(myquery, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
-            return;
+            res.status(500).send(err);
         } else if (result[0]){
             console.log(result);
             res.setHeader('Set-Cookie', `username=${username}`);
@@ -311,7 +310,7 @@ app.post('/register', (req, res) => {
     connection.query(query, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
-            return;
+            res.status(500).send(err);
         }
         res.redirect('/');
     });
