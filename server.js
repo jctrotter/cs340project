@@ -130,6 +130,14 @@ app.get('/authorsearch', (req, res) => {
     });
 });
 
+<<<<<<< HEAD
+=======
+app.get('/recipe/:recipeId', (req, res) => {
+    var recipeId = req.params.recipeId;
+    res.status(200).render('recipe');
+});
+
+>>>>>>> Not workingggg
 // Add Recipe Page //
 // GET /add_recipe
 app.get('/add_recipe', (req, res) => {
