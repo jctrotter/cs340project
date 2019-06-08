@@ -22,11 +22,11 @@ $(document).ready(() => {
 		}
 
 		// Concatenate Search Text to URI //
-		var url = actionType.concat(`?search=${searchText}`);
+		var route = actionType.concat(`?search=${searchText}`);
 		
 		// Send AJAX Request //
-		$.get(url, (data, status) => {
-			window.location.href = url;
+		$.get(route, (data, status) => {
+			window.location.href = route;
 		});
 	});
 });
