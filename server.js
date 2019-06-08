@@ -133,7 +133,8 @@ app.get('/authorsearch', (req, res) => {
     });
 });
 
-app.get('/add_recipe.html', (req, res) => {
+
+app.get('/add_recipe', (req, res) => {
     res.status(200).render('add_recipe');
 });
 
@@ -146,6 +147,12 @@ app.get('/register', (req, res) => {
 app.get('/login', (req, res) => {
     res.status(200).render('login');
 });
+
+// Logout //
+app.get('/logout', (req, res) => {
+    res.setHeader('Set-Cookie', `username=`);
+    res.status(200).render('login')
+})
 
 // Error Page //
 app.get('*', (req, res) => {
