@@ -2,6 +2,7 @@ var express = require('express');
 var exphbs = require('express-handlebars');
 var mysql = require('mysql');
 var bodyParser = require('body-parser')
+var cookieParser = require('cookie-parser');
 var app = express();
 var port = process.env.PORT || 3000;
 
@@ -15,15 +16,16 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+app.use(cookieParser())
 // Complete Express Setup //
 app.use(express.static('public'));
 
-
+var session_user;
 
 // Database Connection: Change credentials to connect to your server. //
 var connection = mysql.createPool({
     host: "classmysql.engr.oregonstate.edu",
-    user: "cs340_trotterj",
+    user: "cs340_trotterj", //make sure to line up with the user in db.sql
     password: "9288",
     database: "cs340_trotterj"
 });
@@ -127,6 +129,11 @@ app.get('/authorsearch', (req, res) => {
     });
 });
 
+
+app.get('/add_recipe', (req, res) => {
+    res.status(200).render('add_recipe');
+});
+
 // Login Page //
 app.get('/login', (req, res) => {
     res.status(200).render('login');
@@ -137,9 +144,11 @@ app.get('/register', (req, res) => {
     res.status(200).render('register');
 });
 
-app.get('/add_recipe.html', (req, res) => {
-    res.status(200).render('add_recipe');
-});
+// Logout //
+app.get('/logout', (req, res) => {
+    res.setHeader('Set-Cookie', `username=`);
+    res.status(200).render('login')
+})
 
 // Error Page //
 app.get('*', (req, res) => {
@@ -150,6 +159,31 @@ app.get('*', (req, res) => {
 // Run Server //
 app.listen(port, () => {
     console.log(" Server is listening on port", port);
+});
+
+app.post('/login', (req, res) => {
+    console.log("IN THT EBODYDDY!!")
+    console.log(req.body.username);
+    let username = req.body.username;
+    console.log(req.body.password);
+    let password = req.body.password;
+    var myquery = `SELECT * FROM User WHERE username = '${req.body.username}' AND password = '${req.body.password}'`;
+    console.log(myquery)
+    connection.query(myquery, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err.code}`);
+            return;
+        } else if (result[0]){
+            console.log(result);
+            res.setHeader('Set-Cookie', `username=${username}`);
+            res.status(200).render('search');
+            //ACCESS USERNAME COOKIE WITH req.cookies['username']
+        }
+        else {
+            console.log(result)
+            console.log("invalid username or password")
+        }
+    })
 });
 
 app.post('/addrecipe', (req, res) => {
