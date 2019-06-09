@@ -62,7 +62,7 @@ connection.on('error', err => {
 // Routes //
 
 // Home Page //
-app.get('/index', (req, res) => {
+app.get('/', (req, res) => {
     // Render all recipes in the Recipe table //
     connection.query("SELECT * FROM Recipe", (err, result, fields) => {
         if (err) {
@@ -300,7 +300,7 @@ app.post('/addrecipe', (req, res) => {
                 res.status(500).send(err);
             }
         });
-        res.redirect('/login');
+        res.redirect('/');
         }
         else{
             console.log("Invalid input - please fill in all forms.")
@@ -326,7 +326,7 @@ app.post('/login', (req, res) => {
         } else if (result[0]){
             console.log(result);
             res.setHeader('Set-Cookie', `username=${username}`);
-            res.redirect('/login');
+            res.redirect('/');
             //ACCESS USERNAME COOKIE WITH req.cookies['username']
         }
         else {
@@ -354,7 +354,7 @@ app.post('/register', (req, res) => {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
             res.status(500).send(err);
         }
-        res.redirect('/login');
+        res.redirect('/');
     });
 });
 
