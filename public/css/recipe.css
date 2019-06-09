@@ -1,0 +1,28 @@
+.bg-recipe{
+    background-color: #efe4b0 !important;
+}
+
+.recipe-text{
+    color: #880015 !important;
+}
+
+.centered{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+}
+
+.amt-input-container{
+    width: 10%;
+    display: inline-block;
+}
+.ingredients-input-container{
+    display: inline-block;
+    width: 80%;
+}
+
+.steps-input-container{
+    display: inline-block;
+    width: 90%;
+}
