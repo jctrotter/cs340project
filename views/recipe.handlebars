@@ -1,15 +1,30 @@
 <main role="main" class="container">
-	<h1>{{title}}</h1>
+	<h1>
+		{{title}}
+		{{#if loggedIn}}
+			<span id="favorite-star" class="fa fa-star" value="{{user}}"></span>
+		{{/if}}
+	</h1>
 	<div class="row">
 		<div class="col-md-6">
 			<img src="{{photoUrl}}" class="img-fluid border rounded" />
 		</div>
-		<div class="col-md-6">
-			<ul>
+		<div class="col-md-4">
+			<h4>Ingredients</h4>
+			<ul class="list-group">
 				{{#each ingredients}}
 					{{> ingredientItem}}
 				{{/each}}
 			</ul>
 		</div>
+	</div>
+	<br>
+	<h4>Steps</h4>
+	<div class="row">
+		<ul class="list-group">
+			{{#each steps}}
+				{{> step}}
+			{{/each}}
+		</ul>
 	</div>
 </main>

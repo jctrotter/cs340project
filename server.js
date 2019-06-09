@@ -27,9 +27,9 @@ app.use(express.static('public'));
 // Database Connection: Change credentials to connect to your server. //
 var connection = mysql.createPool({
     host: "classmysql.engr.oregonstate.edu",
-    user: "cs340_vaughanh",                                 // make sure to line up with the user in db.sql
-    password: "2189",
-    database: "cs340_vaughanh"
+    user: "cs340_trotterj",                                 // make sure to line up with the user in db.sql
+    password: "9288",
+    database: "cs340_trotterj"
 });
 
 // Connect to Database
@@ -76,7 +76,9 @@ app.get('/', (req, res) => {
             res.status(500).send(err);
         }
         res.status(200).render('search', {
-            recipes: result
+            recipes: result,
+            user: req.cookies['username'],
+            loggedIn: (req.cookies['username'] !== "")
         });
     });
 });
@@ -94,7 +96,8 @@ app.get('/recipesearch', (req, res) => {
         }
         res.status(200).render('search', {
             title: result.title,
-            user: req.cookies['username']
+            user: req.cookies['username'],
+            loggedIn: (req.cookies['username'] !== "")
         });
     });
 });
@@ -111,8 +114,9 @@ app.get('/ingredientsearch', (req, res) => {
             res.status(500).send(err);
         }
         res.status(200).render('search', {
-           recipes: result,
-           user: req.cookies['username']
+            recipes: result,
+            user: req.cookies['username'],
+            loggedIn: (req.cookies['username'] !== "")
         });
     });
 });
@@ -129,8 +133,9 @@ app.get('/authorsearch', (req, res) => {
             res.status(500).send(err);
         }
         res.status(200).render('search', {
-           recipes: result,
-           user: req.cookies['username']
+            recipes: result,
+            user: req.cookies['username'],
+            loggedIn: (req.cookies['username'] !== "")
         });
     });
 });
@@ -138,60 +143,87 @@ app.get('/authorsearch', (req, res) => {
 // Single Recipe Page //
 app.get('/recipe', (req, res) => {
     var recipeId = req.query.id;
-    let query = `SELECT DISTINCT * FROM Recipe WHERE id = ${recipeId}`;
-    connection.query(query, (err, result, fields) => {
+
+    recipeQuery = `SELECT Recipe.title, Recipe.id, Recipe.photo, User.username FROM Recipe INNER JOIN UserRecipe ON Recipe.id = UserRecipe.recipe_id INNER JOIN User ON UserRecipe.user_id = User.id WHERE Recipe.id = ${recipeId}`;
+    stepsQuery = `SELECT Step.num, Step.text FROM Step INNER JOIN RecipeStep ON Step.id = RecipeStep.step_id INNER JOIN Recipe ON RecipeStep.recipe_id = Recipe.id WHERE Recipe.id = ${recipeId}`
+    ingredientsQuery = `SELECT RecipeIngredient.amount, Ingredient.name FROM Ingredient INNER JOIN RecipeIngredient ON Ingredient.id = RecipeIngredient.ingredient_id INNER JOIN Recipe ON RecipeIngredient.recipe_id = Recipe.id WHERE Recipe.id = ${recipeId}`
+    favoriteQuery = `SELECT * FROM UserFavorite WHERE recipe_id = ${recipeId} AND user_id = (SELECT id FROM User WHERE username = '${req.cookies['username']}')`
+    
+    var id, title, photoUrl, author, favorite;
+    var steps = [], ingredients = [];
+    connection.query(recipeQuery, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
             res.status(500).send(err);
         }
-        res.status(200).render('recipe', {
-            title: result[0].title,
-            photoUrl: result[0].photo,
-            ingredients: result[0].ingredients,
-            user: req.cookies['username']
+
+        id = result[0].id;
+        title = result[0].title;
+        photoUrl = result[0].photo;
+        author = result[0].username;
+
+        console.log("== RECIPE INFO ==");
+        console.log(`ID: ${id}\nTitle: ${title}\nPhoto URL: ${photoUrl}\nAuthor: ${author}`);
+
+        connection.query(stepsQuery, (err, result, fields) => {
+            if (err) {
+                console.log(` The following error occurred while attempting to query the database: ${err}`);
+                res.status(500).send(err);
+            }
+            console.log(result[0]);
+
+            for (var i = 0; i < result.length; i++) {
+                steps.push({
+                    "num": result[i].num,
+                    "text": result[i].text
+                });
+            }
+
+            console.log("\n== STEPS ==");
+            for (var i = 0; i < steps.length; i++) {
+                console.log(`${steps[i]['num']}. ${steps[i]['text']}`);
+            }
+
+            connection.query(ingredientsQuery, (err, result, fields) => {
+                if (err) {
+                    console.log(` The following error occurred while attempting to query the database: ${err}`);
+                    res.status(500).send(err);
+                }
+
+                for (var i = 0; i < result.length; i++) {
+                    ingredients.push({
+                        "amount": result[i].amount,
+                        "name": result[i].name
+                    });
+                }
+    
+                console.log("\n== INGREDIENTS ==");
+                for (var i = 0; i < ingredients.length; i++) {
+                    console.log(`${ingredients[i]['amount']}\t${ingredients[i]['name']}`);
+                }
+
+                connection.query(favoriteQuery, (err, result, fields) => {
+                    if (err) {
+                        console.log(` The following error occurred while attempting to query the database: ${err}`);
+                        res.status(500).send(err);
+                    }
+
+                    favorite = result[0] || false;
+
+                    console.log("\n== FAVORITE? ==");
+                    console.log(favorite);
+
+                    res.status(200).render('recipe', {
+                        title: title,
+                        photoUrl: photoUrl,
+                        ingredients: ingredients,
+                        steps: steps,
+                        user: req.cookies['username'],
+                        loggedIn: (req.cookies['username'] !== "")
+                    });
+                });
+            });
         });
-    });
-    console.log(recipeId)
-    console.log(req.cookies['username'])
-    title_id_photo_username_query = `SELECT Recipe.title, Recipe.id, Recipe.photo, User.username FROM Recipe INNER JOIN UserRecipe ON Recipe.id = UserRecipe.recipe_id INNER JOIN User ON UserRecipe.user_id = User.id WHERE Recipe.id = ${recipeId}`
-    steps_query = `SELECT Step.num, Step.text FROM Step INNER JOIN RecipeStep ON Step.id = RecipeStep.step_id INNER JOIN Recipe ON RecipeStep.recipe_id = Recipe.id WHERE Recipe.id = ${recipeId}`
-    ingredients_query = `SELECT RecipeIngredient.amount, Ingredient.name FROM Ingredient INNER JOIN RecipeIngredient ON Ingredient.id = RecipeIngredient.ingredient_id INNER JOIN Recipe ON RecipeIngredient.recipe_id = Recipe.id WHERE Recipe.id = ${recipeId}`
-    favorite_query = `SELECT * FROM UserFavorite WHERE recipe_id = ${recipeId} AND user_id = (SELECT id FROM User WHERE username = '${req.cookies['username']}')`
-    connection.query(title_id_photo_username_query, (err, result, fields) => {
-        if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err}`);
-            res.status(500).send(err);
-        }
-        else {
-            console.log(result)
-        }
-    });
-    connection.query(steps_query, (err, result, fields) => {
-        if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err}`);
-            res.status(500).send(err);
-        }
-        else {
-            console.log(result)
-        }
-    });
-    connection.query(ingredients_query, (err, result, fields) => {
-        if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err}`);
-            res.status(500).send(err);
-        }
-        else {
-            console.log(result)
-        }
-    });
-    connection.query(favorite_query, (err, result, fields) => {
-        if (err) {
-            console.log(` The following error occurred while attempting to query the database: ${err}`);
-            res.status(500).send(err);
-        }
-        else {
-            console.log(result)
-        }
     });
 });
 
