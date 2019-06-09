@@ -131,7 +131,7 @@ app.get('/authorsearch', (req, res) => {
 
 app.get('/recipe', (req, res) => {
     var recipeId = req.query.id;
-    var query = `SELECT DISTINCT * FROM Recipe WHERE id = ${recipeId}`;
+    let query = `SELECT DISTINCT * FROM Recipe WHERE id = ${recipeId}`;
     connection.query(query, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
@@ -140,6 +140,48 @@ app.get('/recipe', (req, res) => {
         res.status(200).render('recipe', {
             title: result[0].title
         });
+    });
+    console.log(recipeId)
+    console.log(req.cookies['username'])
+    title_id_photo_username_query = `SELECT Recipe.title, Recipe.id, Recipe.photo, User.username FROM Recipe INNER JOIN UserRecipe ON Recipe.id = UserRecipe.recipe_id INNER JOIN User ON UserRecipe.user_id = User.id WHERE Recipe.id = ${recipeId}`
+    steps_query = `SELECT Step.num, Step.text FROM Step INNER JOIN RecipeStep ON Step.id = RecipeStep.step_id INNER JOIN Recipe ON RecipeStep.recipe_id = Recipe.id WHERE Recipe.id = ${recipeId}`
+    ingredients_query = `SELECT RecipeIngredient.amount, Ingredient.name FROM Ingredient INNER JOIN RecipeIngredient ON Ingredient.id = RecipeIngredient.ingredient_id INNER JOIN Recipe ON RecipeIngredient.recipe_id = Recipe.id WHERE Recipe.id = ${recipeId}`
+    favorite_query = `SELECT * FROM UserFavorite WHERE recipe_id = ${recipeId} AND user_id = (SELECT id FROM User WHERE username = '${req.cookies['username']}')`
+    connection.query(title_id_photo_username_query, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
+            res.status(500).send(err);
+        }
+        else {
+            console.log(result)
+        }
+    });
+    connection.query(steps_query, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
+            res.status(500).send(err);
+        }
+        else {
+            console.log(result)
+        }
+    });
+    connection.query(ingredients_query, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
+            res.status(500).send(err);
+        }
+        else {
+            console.log(result)
+        }
+    });
+    connection.query(favorite_query, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
+            res.status(500).send(err);
+        }
+        else {
+            console.log(result)
+        }
     });
 });
 
