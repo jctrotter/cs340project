@@ -2,7 +2,14 @@
 	<h1>{{title}}</h1>
 	<div class="row">
 		<div class="col-md-6">
-			<img src="{{photoUrl}}" />
+			<img src="{{photoUrl}}" class="img-fluid border rounded" />
+		</div>
+		<div class="col-md-6">
+			<ul>
+				{{#each ingredients}}
+					{{> ingredientItem}}
+				{{/each}}
+			</ul>
 		</div>
 	</div>
 </main>
