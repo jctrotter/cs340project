@@ -31,7 +31,7 @@
     color: lightgray;
 }
 
-.fa-star:checked {
+.checked {
     color: orange;
 }
 

@@ -5,10 +5,10 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser')
 var cookieParser = require('cookie-parser');
 var passwordHasher = require('password-hash');
+var port = process.env.PORT || 3000;
 
 // Initial Express Setup //
 var app = express();
-app.set('port', process.argv[2]);
 
 // Handlebars Setup //
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
@@ -74,6 +74,7 @@ app.get('/', (req, res) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
             res.status(500).send(err);
+            return;
         }
         res.status(200).render('search', {
             recipes: result,
@@ -88,14 +89,16 @@ app.get('/', (req, res) => {
 app.get('/recipesearch', (req, res) => {
     var searchText = req.query.search.split('+').join(' ');
     var searchQuery = `SELECT * FROM Recipe WHERE title LIKE '%${searchText}%'`;
+    console.log(searchQuery);
 
     connection.query(searchQuery, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
             res.status(500).send(err);
+            return;
         }
         res.status(200).render('search', {
-            title: result.title,
+            recipes: result,
             user: req.cookies['username'],
             loggedIn: (req.cookies['username'] !== "")
         });
@@ -112,6 +115,7 @@ app.get('/ingredientsearch', (req, res) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
             res.status(500).send(err);
+            return;
         }
         res.status(200).render('search', {
             recipes: result,
@@ -131,6 +135,7 @@ app.get('/authorsearch', (req, res) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
             res.status(500).send(err);
+            return;
         }
         res.status(200).render('search', {
             recipes: result,
@@ -140,9 +145,54 @@ app.get('/authorsearch', (req, res) => {
     });
 });
 
+// Search by Favorites Results //
+// GET /favorites?search=search+text
+app.get('/favorites', (req, res) => {
+    var searchText = req.query.search;
+    if (searchText !== undefined) {
+        if (req.cookies['username'] === "") {
+            res.redirect('/login');
+        } else {
+            searchText = searchText.split('+').join(' ');
+            var searchQuery = `SELECT * FROM UserFavorite INNER JOIN User ON UserFavorite.user_id = User.id INNER JOIN Recipe ON UserFavorite.recipe_id = Recipe.id WHERE title LIKE '%${searchText}%' AND username = '${req.cookies['username']}'`;
+            connection.query(searchQuery, (err, result, fields) => {
+                if (err) {
+                    console.log(` The following error occurred while attempting to query the database: ${err}`);
+                    res.status(500).send(err);
+                    return;
+                }
+                res.status(200).render('search', {
+                    recipes: result,
+                    user: req.cookies['username'],
+                    loggedIn: (req.cookies['username'] !== "")
+                });
+            });
+        }
+    } else {
+        if (req.cookies['username'] === "") {
+            res.redirect('/login');
+        } else {
+            var searchQuery = `SELECT * FROM UserFavorite INNER JOIN User ON UserFavorite.user_id = User.Id INNER JOIN Recipe ON UserFavorite.recipe_id = Recipe.id WHERE username = '${req.cookies['username']}'`;
+            connection.query(searchQuery, (err, result, fields) => {
+                if (err) {
+                    console.log(` The following error occurred while attempting to query the database: ${err}`);
+                    res.status(500).send(err);
+                    return;
+                }
+                res.status(200).render('search', {
+                    recipes: result,
+                    user: req.cookies['username'],
+                    loggedIn: (req.cookies['username'] !== "")
+                });
+            });
+        }
+    }
+});
+
 // Single Recipe Page //
 app.get('/recipe', (req, res) => {
     var recipeId = req.query.id;
+    var isFavorite = req.query.isFavorite;
 
     recipeQuery = `SELECT Recipe.title, Recipe.id, Recipe.photo, User.username FROM Recipe INNER JOIN UserRecipe ON Recipe.id = UserRecipe.recipe_id INNER JOIN User ON UserRecipe.user_id = User.id WHERE Recipe.id = ${recipeId}`;
     stepsQuery = `SELECT Step.num, Step.text FROM Step INNER JOIN RecipeStep ON Step.id = RecipeStep.step_id INNER JOIN Recipe ON RecipeStep.recipe_id = Recipe.id WHERE Recipe.id = ${recipeId}`
@@ -162,26 +212,17 @@ app.get('/recipe', (req, res) => {
         photoUrl = result[0].photo;
         author = result[0].username;
 
-        console.log("== RECIPE INFO ==");
-        console.log(`ID: ${id}\nTitle: ${title}\nPhoto URL: ${photoUrl}\nAuthor: ${author}`);
-
         connection.query(stepsQuery, (err, result, fields) => {
             if (err) {
                 console.log(` The following error occurred while attempting to query the database: ${err}`);
                 res.status(500).send(err);
             }
-            console.log(result[0]);
 
             for (var i = 0; i < result.length; i++) {
                 steps.push({
                     "num": result[i].num,
                     "text": result[i].text
                 });
-            }
-
-            console.log("\n== STEPS ==");
-            for (var i = 0; i < steps.length; i++) {
-                console.log(`${steps[i]['num']}. ${steps[i]['text']}`);
             }
 
             connection.query(ingredientsQuery, (err, result, fields) => {
@@ -196,11 +237,6 @@ app.get('/recipe', (req, res) => {
                         "name": result[i].name
                     });
                 }
-    
-                console.log("\n== INGREDIENTS ==");
-                for (var i = 0; i < ingredients.length; i++) {
-                    console.log(`${ingredients[i]['amount']}\t${ingredients[i]['name']}`);
-                }
 
                 connection.query(favoriteQuery, (err, result, fields) => {
                     if (err) {
@@ -208,10 +244,7 @@ app.get('/recipe', (req, res) => {
                         res.status(500).send(err);
                     }
 
-                    favorite = result[0] || false;
-
-                    console.log("\n== FAVORITE? ==");
-                    console.log(favorite);
+                    favorite = result[0] ? true : false;
 
                     res.status(200).render('recipe', {
                         id: id,
@@ -219,6 +252,7 @@ app.get('/recipe', (req, res) => {
                         photoUrl: photoUrl,
                         ingredients: ingredients,
                         steps: steps,
+                        isFavorite: favorite,
                         user: req.cookies['username'],
                         loggedIn: (req.cookies['username'] !== "")
                     });
@@ -228,26 +262,43 @@ app.get('/recipe', (req, res) => {
     });
 });
 
-app.post('/favorite', (req, res) => {
-    var user = req.query.user;
-    var recipeId = req.query.recipeId;
+app.post('/recipe', (req, res) => {
+    var user = req.body.currentUser;
+    var recipeId = req.body.recipeId;
+    var isFavorite = (req.body.isFavorite === "true") ? true : false;
+
     var userQuery = `SELECT * FROM User WHERE username = '${user}'`;
-    console.log(" In /favorite");
     connection.query(userQuery, (err, result, fields) => {
         if (err) {
             console.log(` The following error occurred while attempting to query the database: ${err}`);
             res.status(500).send(err);
+            return;
         }
-        var insertQuery = `IF NOT EXISTS (SELECT * FROM UserFavorite WHERE user_id = ${result[0].id} AND recipe_id = ${recipeId}) THEN INSERT INTO UserFavorite (id, user_id, recipe_id) SELECT (SELECT MAX(id) + 1 FROM UserFavorite), ${result[0].id}, ${recipeId}; END IF;`;
-        connection.query(insertQuery, (err, result, fields) => {
-            if (err) {
-                console.log(` The following error occurred while attempting to query the database: ${err}`);
-                res.status(500).send(err);
-            }
-            res.redirect(`/recipe?id=${recipeId}`);
-        });
+        
+        if (!isFavorite) {
+            var insertQuery = `IF NOT EXISTS (SELECT * FROM UserFavorite WHERE user_id = ${result[0].id} AND recipe_id = ${recipeId}) THEN INSERT INTO UserFavorite (id, user_id, recipe_id) SELECT (SELECT MAX(id) + 1 FROM UserFavorite), ${result[0].id}, ${recipeId}; END IF;`;
+            console.log(" Adding favorite...");
+            connection.query(insertQuery, (err, result, fields) => {
+                if (err) {
+                    console.log(` The following error occurred while attempting to query the database: ${err}`);
+                    res.status(500).send(err);
+                    return;
+                }
+                res.redirect(`/recipe?id=${recipeId}`);
+            });
+        } else {
+            var deleteQuery = `IF EXISTS (SELECT * FROM UserFavorite WHERE user_id = ${result[0].id} AND recipe_id = ${recipeId}) THEN DELETE FROM UserFavorite WHERE user_id = ${result[0].id} AND recipe_id = ${recipeId}; END IF;`;
+            console.log(" Deleting favorite...");
+            connection.query(deleteQuery, (err, result, fields) => {
+                if (err) {
+                    console.log(` The following error occurred while attempting to query the database: ${err}`);
+                    res.status(500).send(err);
+                    return;
+                }
+                res.redirect(`/recipe?id=${recipeId}`);
+            });
+        }
     });
-    res.redirect(`/recipe?id=${recipeId}`);
 });
 
 // Login Page //
@@ -355,30 +406,30 @@ app.post('/addrecipe', (req, res) => {
         invalid = true;
     }
 
-    console.log(` Valid Input: ${invalid}`);
+    console.log(` Invalid Input: ${invalid}`);
 
     // Add recipe if all input is valid
     if (!invalid) {
         // Add the recipe
         console.log(" Valid input, generating queries");
-        var insertRecipeQuery = `IF NOT EXISTS (SELECT * FROM Recipe WHERE title = '${req.body.recipe_name}') THEN INSERT INTO Recipe (id, title, photo) SELECT (SELECT MAX(id) + 1 FROM Recipe), '${req.body.recipe_name}', '${req.body.photo_url}'; END IF`;
+        var insertRecipeQuery = `INSERT INTO Recipe (id, title,photo) SELECT (SELECT MAX(id)+1 FROM Recipe), "${req.body.recipe_name}", '${req.body.photo_url}'`;
 
         // Insert all new ingredients
         var insertIngredientQueries = [];
         for (i = 0; i < req.body.ingredient.length; i++) {
-            insertIngredientQueries.push(`IF NOT EXISTS (SELECT * FROM Ingredient WHERE name = '${req.body.ingredient[i]}') THEN INSERT INTO Ingredient (id, name) SELECT MAX(id) + 1, '${req.body.ingredient[i]}' FROM Ingredient; END IF`);
+            insertIngredientQueries.push(`INSERT INTO Ingredient (id, name) SELECT MAX(id) + 1, '${req.body.ingredient[i]}' FROM Ingredient`);
         };
 
         // Insert all RecipeIngredient relations
         var insertRecipeIngredientQueries = [];
         for (i = 0; i < req.body.ingredient.length; i++){
-            insertRecipeIngredientQueries.push(`IF NOT EXISTS (SELECT * FROM RecipeIngredient WHERE recipe_id = (SELECT MAX(id) FROM Recipe) AND ingredient_id = (SELECT id FROM Ingredient WHERE name = '${req.body.ingredient[i]}')) THEN INSERT INTO RecipeIngredient (id, recipe_id, ingredient_id, amount) SELECT (SELECT MAX(id) + 1 FROM RecipeIngredient), (SELECT MAX(id) FROM Recipe), (SELECT id FROM Ingredient WHERE name = '${req.body.ingredient[i]}'), '${req.body.amt[i]}'; END IF`);
+            insertRecipeIngredientQueries.push(`INSERT INTO RecipeIngredient (id, recipe_id, ingredient_id, amount) SELECT (SELECT MAX(id) + 1 FROM RecipeIngredient), (SELECT MAX(id) FROM Recipe), (SELECT id FROM Ingredient WHERE name = '${req.body.ingredient[i]}'), '${req.body.amt[i]}'`);
         }
 
         // Insert all steps
         var insertStepQueries = [];
         for (i = 0; i < req.body.step.length; i++){
-            insertStepQueries.push(`INSERT INTO Step (id, num, text) SELECT MAX(id) + 1, ${i + 1}, '${req.body.step[i]}' FROM Step`)
+            insertStepQueries.push(`INSERT INTO Step (id, num, text) SELECT MAX(id) + 1, ${i + 1}, '${req.body.step[i]}' FROM Step`);
         }
 
         // Insert all RecipeStep relations
@@ -396,50 +447,56 @@ app.post('/addrecipe', (req, res) => {
             if (err) {
                 console.log(` The following error occurred while attempting to recipe query the database: ${err}`);
                 res.status(500).send(err);
+                return;
             }
         });
 
         // Insert All New Ingredients //
-        for (i = insertIngredientQueries.length - 1; i >= 0; i--){
+        for (i = 0; i < insertIngredientQueries.length; i++){
             connection.query(insertIngredientQueries[i], (err, result, fields) => {
                 if (err) {
                     console.log(` The following error occurred while attempting to ingredient query the database: ${err}`);
                     res.status(500).send(err);
+                    return;
                 }
             });
-        };
+        }
 
         // Insert All RecipeIngredient Relations //
-        for (i = insertRecipeIngredientQueries.length - 1; i >= 0; i--) {
+        for (i = 0; i < insertRecipeIngredientQueries.length; i++) {
             connection.query(insertRecipeIngredientQueries[i], (err, result, fields) => {
                 if (err) {
                     console.log(` The following error occurred while attempting to recipeingredient query the database: ${err}`);
                     res.status(500).send(err);
+                    return;
                 }
             });
-        };
+        }
 
         // Insert All Steps and RecipeStep Relations //
-        for(i = insertStepQueries.length - 1; i >= 0; i--) {
+        for(i = 0; i < insertRecipeStepQueries.length; i++) {
             connection.query(insertStepQueries[i], (err, result, fields) => {
                 if (err) {
                     console.log(` The following error occurred while attempting to step query the database: ${err}`);
                     res.status(500).send(err);
+                    return;
                 }
             });
             connection.query(insertRecipeStepQueries[i], (err, result, fields) => {
                 if (err) {
                     console.log(` The following error occurred while attempting to recipestep query the database: ${err}`);
                     res.status(500).send(err);
+                    return;
                 }
             });
-        };
+        }
 
         // Insert UserRecipe Relation //
         connection.query(insertUserRecipeQuery, (err, result, fields) => {
             if (err) {
                 console.log(` The following error occurred while attempting to userrecipe query the database: ${err.code}`);
                 res.status(500).send(err);
+                return;
             }
         });
 
@@ -461,6 +518,6 @@ app.get('*', (req, res) => {
 });
 
 // Run Server //
-app.listen(app.get('port'), () => {
-    console.log(" Server is listening on port", app.get('port'));
+app.listen(port, () => {
+    console.log(" Server is listening on port", port);
 });

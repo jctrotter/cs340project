@@ -2,9 +2,22 @@
 	<h1>
 		{{title}}
 		{{#if loggedIn}}
-			<form action="/favorite">
-				<a class="fa fa-star" onclick="this.parentNode.submit();" href=""></a>
-			</form>
+			{{#unless isFavorite}}
+				<form id="favorite-form" action="/recipe" method="POST">
+					<input type="hidden" name="currentUser" value="{{user}}" />
+					<input type="hidden" name="recipeId" value="{{id}}" />
+					<input type="hidden" name="isFavorite" value="false" />
+					<button type="submit" id="favorite-button" class="fa fa-star btn btn-outline-light"></button>
+				</form>
+			{{/unless}}
+			{{#if isFavorite}}
+				<form id="unfavorite-form" action="/recipe" method="POST">
+					<input type="hidden" name="currentUser" value="{{user}}" />
+					<input type="hidden" name="recipeId" value="{{id}}" />
+					<input type="hidden" name="isFavorite" value="true" />
+					<button type="submit" id="unfavorite-button" class="fa fa-star btn btn-outline-light checked"></button>
+				</form>
+			{{/if}}
 		{{/if}}
 	</h1>
 	<div class="row">

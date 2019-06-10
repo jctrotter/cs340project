@@ -1,15 +1,18 @@
 $(document).ready(() => {
 	$('#favorite-star').click(event => {
-		var checked = $(event.currentTarget).hasClass('checked');
-		if (!checked) {
-			var userRecipeId = $('#current-user').val().split('+');
-			var user = userRecipeId[0];
-			var recipeId = userRecipeId[1];
-			var route = `/favorite?user=${user}&recipeId=${recipeId}`;
+		event.preventDefault();
 
-			$.post(route, (data, status) => {
-				window.location.href = route;
-			});
+		var isFavorite = $('#favorite-button').hasClass('checked');
+		if (!isFavorite) {
+			console.log("Checking star...");
+			$('#favorite-button').addClass('checked');
+			$('#favorite-form').append('<input type="hidden" name="isFavorite" value="false" />');
+		} else {
+			console.log("Unchecking star...");
+			$('favorite-button').removeClass('checked');
+			$('#favorite-form').append('<input type="hidden" name="isFavorite" value="true" />');
 		}
+
+		event.preventDefault();
 	});
 });
