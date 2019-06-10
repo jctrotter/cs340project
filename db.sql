@@ -354,7 +354,7 @@ CREATE VIEW recipeAuthorSearch AS
 
 -- Procedure to Update Search Views --
 DELIMITER $$
-CREATE DEFINER=`cs340_vaughanh`@`%` PROCEDURE `updateSearchViews`()
+CREATE DEFINER=`cs340_trotterj`@`%` PROCEDURE `updateSearchViews`()
     NO SQL
 BEGIN
 	DROP VIEW recipeIngredientSearch;
