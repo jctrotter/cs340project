@@ -27,9 +27,9 @@ app.use(express.static('public'));
 // Database Connection: Change credentials to connect to your server. //
 var connection = mysql.createPool({
     host: "classmysql.engr.oregonstate.edu",
-    user: "cs340_trotterj",                                 // make sure to line up with the user in db.sql
-    password: "9288",
-    database: "cs340_trotterj"
+    user: "cs340_vaughanh",                                 // make sure to line up with the user in db.sql
+    password: "2189",
+    database: "cs340_vaughanh"
 });
 
 // Connect to Database
@@ -214,6 +214,7 @@ app.get('/recipe', (req, res) => {
                     console.log(favorite);
 
                     res.status(200).render('recipe', {
+                        id: id,
                         title: title,
                         photoUrl: photoUrl,
                         ingredients: ingredients,
@@ -225,6 +226,28 @@ app.get('/recipe', (req, res) => {
             });
         });
     });
+});
+
+app.post('/favorite', (req, res) => {
+    var user = req.query.user;
+    var recipeId = req.query.recipeId;
+    var userQuery = `SELECT * FROM User WHERE username = '${user}'`;
+    console.log(" In /favorite");
+    connection.query(userQuery, (err, result, fields) => {
+        if (err) {
+            console.log(` The following error occurred while attempting to query the database: ${err}`);
+            res.status(500).send(err);
+        }
+        var insertQuery = `IF NOT EXISTS (SELECT * FROM UserFavorite WHERE user_id = ${result[0].id} AND recipe_id = ${recipeId}) THEN INSERT INTO UserFavorite (id, user_id, recipe_id) SELECT (SELECT MAX(id) + 1 FROM UserFavorite), ${result[0].id}, ${recipeId}; END IF;`;
+        connection.query(insertQuery, (err, result, fields) => {
+            if (err) {
+                console.log(` The following error occurred while attempting to query the database: ${err}`);
+                res.status(500).send(err);
+            }
+            res.redirect(`/recipe?id=${recipeId}`);
+        });
+    });
+    res.redirect(`/recipe?id=${recipeId}`);
 });
 
 // Login Page //

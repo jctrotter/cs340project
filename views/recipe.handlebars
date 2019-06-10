@@ -2,7 +2,9 @@
 	<h1>
 		{{title}}
 		{{#if loggedIn}}
-			<span id="favorite-star" class="fa fa-star" value="{{user}}"></span>
+			<form action="/favorite">
+				<a class="fa fa-star" onclick="this.parentNode.submit();" href=""></a>
+			</form>
 		{{/if}}
 	</h1>
 	<div class="row">
