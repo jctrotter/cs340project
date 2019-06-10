@@ -14,7 +14,7 @@ npm start
 ```
 
 ## IMPORTANT NOTE
-Running the server on the website link with the forever package causes issues with adding recipes and potential server crashes. If error encountered, reset the phpmyadmin database by deleting the information on the database and readding with the db.sql file.
+Running the server on the website link with the forever package causes issues with adding recipes and potential server crashes. If error encountered, reset the phpmyadmin database by deleting the information on the database and readding with the db.sql file. Run the project on the local machine by following the above instructions.
 ```
 username: cs340_trotterj
 password: 9288
