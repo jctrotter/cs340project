@@ -4,15 +4,19 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarsExampleDefault">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link recipe-text" href="login">Login</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link recipe-text" href="logout">Logout</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link recipe-text" href="register">Register</a>
-      </li>
+      {{#unless loggedIn}}
+        <li class="nav-item">
+          <a class="nav-link recipe-text" href="login">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link recipe-text" href="register">Register</a>
+        </li>
+      {{/unless}}
+      {{#if loggedIn}}
+        <li class="nav-item">
+          <a class="nav-link recipe-text" href="logout">Logout</a>
+        </li>
+      {{/if}}
     </ul>
     <form class="form-inline my-2 my-lg-0">
       <ul class="navbar-nav mr-auto">
@@ -20,10 +24,10 @@
           <a class="nav-link recipe-text" href="/">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link recipe-text" href="search_results.html">My Favorites</a>
+          <a class="nav-link recipe-text" href="favorites">My Favorites</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link recipe-text" href="add_recipe">Add Recipe</a>
+          <a class="nav-link recipe-text" href="addrecipe">Add Recipe</a>
         </li>
       </ul>
     </form>

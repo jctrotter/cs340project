@@ -12,7 +12,9 @@
             <option>Recipe</option>
             <option>Ingredient</option>
             <option>Author</option>
-            <option>Favorites</option>
+            {{#if loggedIn}}
+              <option>Favorites</option>
+            {{/if}}
           </select>
         </div>
         <div class="form-group">

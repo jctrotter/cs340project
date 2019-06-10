@@ -26,3 +26,15 @@
     display: inline-block;
     width: 90%;
 }
+
+.fa-star {
+    color: lightgray;
+}
+
+.checked {
+    color: orange;
+}
+
+.fa-star:hover {
+    color: orange;
+}
